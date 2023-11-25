@@ -48,4 +48,5 @@ dependencies {
     implementation("io.github.oneuiproject:icons:$icons")
     implementation project(path: ":khopan-common")
     implementation project(path: ":lib")
+    implementation project(path: ":hackontrol-api")
 }

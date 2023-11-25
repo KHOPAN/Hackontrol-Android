@@ -1,3 +1,4 @@
 include ':lib'
 include ':khopan-common'
+include ':hackontrol-api'
 include ':hackontrol-android'
