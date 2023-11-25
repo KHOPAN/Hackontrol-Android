@@ -1,63 +1,48 @@
 package com.khopan.hackontrolclient;
 
-import android.annotation.SuppressLint;
-import android.content.res.TypedArray;
 import android.os.Bundle;
-import android.util.TypedValue;
-import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.FrameLayout;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.widget.NestedScrollView;
+import androidx.recyclerview.widget.DefaultItemAnimator;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
+import com.khopan.hackontrol.Target;
 import com.sec.sesl.khopan.hackontrolclient.R;
 
-import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
 
 import dev.oneuiproject.oneui.layout.ToolbarLayout;
 
 public class HackontrolApplication extends AppCompatActivity {
+	private final List<Target> targetList;
+
+	private HackontrolClient client;
+
+	public HackontrolApplication() {
+		this.targetList = new ArrayList<>();
+	}
+
 	@Override
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);
 		ToolbarLayout toolbarLayout = new ToolbarLayout(this, null);
 		this.setContentView(toolbarLayout);
-		toolbarLayout.setTitle(this.getString(R.string.applicationName));
+		String title = this.getString(R.string.applicationName);
+		toolbarLayout.setTitle(title, title);
 		toolbarLayout.setExpanded(false, false);
-		toolbarLayout.setNavigationButtonVisible(false);
-		FrameLayout frameLayout = new FrameLayout(this);
-		frameLayout.setLayoutParams(new ToolbarLayout.ToolbarLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		toolbarLayout.addView(frameLayout);
-		NestedScrollView scrollView = new NestedScrollView(this);
-		scrollView.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		scrollView.setFillViewport(true);
-		scrollView.setOverScrollMode(NestedScrollView.OVER_SCROLL_ALWAYS);
-
-		try {
-			String methodName = "initializeScrollbars";
-			@SuppressLint("DiscouragedPrivateApi")
-			Method method = View.class.getDeclaredMethod(methodName, TypedArray.class);
-			method.setAccessible(true);
-			method.invoke(scrollView, this.obtainStyledAttributes(null, new int[] {}));
-		} catch(Throwable ignored) {
-
-		}
-
-		scrollView.setVerticalScrollBarEnabled(true);
-		frameLayout.addView(scrollView);
-		LinearLayout linearLayout = new LinearLayout(this);
-		linearLayout.setOrientation(LinearLayout.VERTICAL);
-		scrollView.addView(linearLayout);
-
-		TextView textView = new TextView(this);
-		textView.setLayoutParams(new LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
-		textView.setGravity(Gravity.CENTER);
-		textView.setText(this.getString(R.string.applicationName));
-		textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 14.0f);
-		linearLayout.addView(textView);
+		RecyclerView recyclerView = new RecyclerView(this);
+		recyclerView.setLayoutParams(new ToolbarLayout.ToolbarLayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT));
+		recyclerView.setLayoutManager(new LinearLayoutManager(this));
+		TargetAdapter adapter = new TargetAdapter(this.targetList);
+		recyclerView.setAdapter(adapter);
+		recyclerView.seslSetFastScrollerEnabled(true);
+		recyclerView.seslSetGoToTopEnabled(true);
+		recyclerView.seslSetSmoothScrollEnabled(true);
+		recyclerView.setItemAnimator(new DefaultItemAnimator());
+		toolbarLayout.addView(recyclerView);
+		new Thread(() -> this.client = new HackontrolClient(this.targetList, adapter, this)).start();
 	}
 }
