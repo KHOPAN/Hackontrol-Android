@@ -25,9 +25,6 @@ public class ConnectionListener implements TargetListener {
 		this.activity.runOnUiThread(() -> {
 			int index = this.targetList.size();
 			this.targetList.add(target);
-			this.targetList.add(target);
-			this.targetList.add(target);
-			this.targetList.add(target);
 			this.adapter.notifyItemRangeInserted(index, 4);
 		});
 	}
