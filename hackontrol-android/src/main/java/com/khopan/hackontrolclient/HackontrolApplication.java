@@ -20,7 +20,7 @@ import java.lang.reflect.Method;
 
 import dev.oneuiproject.oneui.layout.ToolbarLayout;
 
-public class ExampleApplication extends AppCompatActivity {
+public class HackontrolApplication extends AppCompatActivity {
 	@Override
 	public void onCreate(Bundle bundle) {
 		super.onCreate(bundle);

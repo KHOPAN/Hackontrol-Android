@@ -22,7 +22,7 @@
         <meta-data android:name="theming-meta-xml"
             android:value="@xml/samsung_metadata" />
 
-        <activity android:name="com.khopan.hackontrolclient.ExampleApplication"
+        <activity android:name="com.khopan.hackontrolclient.HackontrolApplication"
             android:launchMode="singleTop"
             android:exported="true">
             <meta-data android:name="com.sec.android.app.launcher.icon_theme"
